@@ -113,24 +113,8 @@ Format patterns:\n\
         }else
             ifilename = argv[i];
     }
-    // Evaluate missing fps values
-    if(old_fps <= 0.0){
-        printf("Insert old fps: ");
-        scanf("%lf", &old_fps);
-        if(old_fps <= 0.0){
-            puts("Expected a valid number (>0)!");
-            return 1;
-        }
-    }
-    if(new_fps <= 0.0){
-        printf("Insert new fps: ");
-        scanf("%lf", &new_fps);
-        if(new_fps <= 0.0){
-            puts("Expected a valid number (>0)!");
-            return 1;
-        }
-    }
-    fps_mul = old_fps / new_fps;
+    // Calculate fps conversion
+    fps_mul = old_fps <= 0.0 || new_fps <= 0.0 ? 1.0 : old_fps / new_fps;
     // Open files
     if(ifilename){
         ifile = fopen(ifilename, "r");
@@ -146,7 +130,7 @@ Format patterns:\n\
             return 1;
         }
     }
-    // Iterate through input lines
+    // Iterate through input file lines
     while(fgets(line, sizeof(line), ifile))
         // Is dialog line and can read leading numbers?
         if(sscanf(line, "Dialogue: %d,%d:%d:%d.%d,%d:%d:%d.%d,", &layer, &start_h, &start_m, &start_s, &start_ms, &end_h, &end_m, &end_s, &end_ms) == 9){
@@ -192,20 +176,22 @@ Format patterns:\n\
                 text[sizeof(text)-1] = '\0';
             }
             // Convert times
-            start_ms = (start_ms * 10 + start_s * 1000 + start_m * 60000 + start_h * 3600000) * fps_mul;
-            start_h = start_ms / 3600000;
-            start_ms %= 3600000;
-            start_m = start_ms / 60000;
-            start_ms %= 60000;
-            start_s = start_ms / 1000;
-            start_ms = start_ms % 1000 / 10;
-            end_ms = (end_ms * 10 + end_s * 1000 + end_m * 60000 + end_h * 3600000) * fps_mul;
-            end_h = end_ms / 3600000;
-            end_ms %= 3600000;
-            end_m = end_ms / 60000;
-            end_ms %= 60000;
-            end_s = end_ms / 1000;
-            end_ms = end_ms % 1000 / 10;
+            if(fps_mul != 1.0){
+                start_ms = (start_ms * 10 + start_s * 1000 + start_m * 60000 + start_h * 3600000) * fps_mul;
+                start_h = start_ms / 3600000;
+                start_ms %= 3600000;
+                start_m = start_ms / 60000;
+                start_ms %= 60000;
+                start_s = start_ms / 1000;
+                start_ms = start_ms % 1000 / 10;
+                end_ms = (end_ms * 10 + end_s * 1000 + end_m * 60000 + end_h * 3600000) * fps_mul;
+                end_h = end_ms / 3600000;
+                end_ms %= 3600000;
+                end_m = end_ms / 60000;
+                end_ms %= 60000;
+                end_s = end_ms / 1000;
+                end_ms = end_ms % 1000 / 10;
+            }
             // Write formatted dialog to output
             pline = str_replace(format, "\\t", "\t", 0);
             pline = str_replace(pline, "\\n", "\n", 1);

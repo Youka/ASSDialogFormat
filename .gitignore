@@ -5,5 +5,5 @@ ass_dialog_format
 
 # Test files
 *.ass
+*.out
 *.bat
-*.cvs

@@ -19,20 +19,20 @@ Permission is granted to anyone to use this software for any purpose, including 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
 // Replace string in string and create new one
-char* str_replace(const char* original, const char* find, const char* replacement, char free_original){
+char* str_replace(const char* original, size_t pos, const char* find, const char* replacement, char free_original){
     char* result;
-    const char* found = strstr(original, find);
+    const char* found = strstr(original+pos, find);
     if(!found){
         result = malloc(strlen(original)+1);
         strcpy(result, original);
     }else{
-        int find_len = strlen(find);
-        result = malloc(strlen(original) + (strlen(replacement) - find_len) + 1);
-        memcpy(result, original, found-original);
-        result[found-original] = '\0';
+        int find_len = strlen(find), replacement_len = strlen(replacement), found_offset = found-original;
+        result = malloc(strlen(original) + (replacement_len - find_len) + 1);
+        memcpy(result, original, found_offset);
+        result[found_offset] = '\0';
         strcat(result, replacement);
         strcat(result, found + find_len);
-        result = str_replace(result, find, replacement, 1);
+        result = str_replace(result, found_offset + replacement_len, find, replacement, 1);
     }
     if(free_original)
         free((void*)original);
@@ -193,18 +193,18 @@ Format patterns:\n\
                 end_ms = end_ms % 1000 / 10;
             }
             // Write formatted dialog to output
-            pline = str_replace(format, "\\t", "\t", 0);
-            pline = str_replace(pline, "\\n", "\n", 1);
+            pline = str_replace(format, 0, "\\t", "\t", 0);
+            pline = str_replace(pline, 0, "\\n", "\n", 1);
             snprintf(line, sizeof(line), "%d", layer);
-            pline = str_replace(pline, "!layer", line, 1);
+            pline = str_replace(pline, 0, "!layer", line, 1);
             snprintf(line, sizeof(line), "%d:%02d:%02d.%02d", start_h, start_m, start_s, start_ms);
-            pline = str_replace(pline, "!start", line, 1);
+            pline = str_replace(pline, 0, "!start", line, 1);
             snprintf(line, sizeof(line), "%d:%02d:%02d.%02d", end_h, end_m, end_s, end_ms);
-            pline = str_replace(pline, "!end", line, 1);
-            pline = str_replace(pline, "!style", style, 1);
-            pline = str_replace(pline, "!actor", actor, 1);
-            pline = str_replace(pline, "!effect", effect, 1);
-            pline = str_replace(pline, "!text", text, 1);
+            pline = str_replace(pline, 0, "!end", line, 1);
+            pline = str_replace(pline, 0, "!style", style, 1);
+            pline = str_replace(pline, 0, "!actor", actor, 1);
+            pline = str_replace(pline, 0, "!effect", effect, 1);
+            pline = str_replace(pline, 0, "!text", text, 1);
             fputs(pline, ofile);
             free((void*)pline);
         }

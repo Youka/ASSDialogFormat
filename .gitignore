@@ -1,0 +1,9 @@
+# Binaries
+*.o
+ass_dialog_format
+*.exe
+
+# Test files
+*.ass
+*.bat
+*.cvs

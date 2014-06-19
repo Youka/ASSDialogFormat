@@ -47,7 +47,7 @@ int main(int argc, const char** argv){
     double old_fps = 0.0, new_fps = 0.0, fps_mul;
     int i, len, layer, start_h, start_m, start_s, end_h, end_m, end_s;
     long start_ms, end_ms;
-    char line[2048], style[64], actor[64], effect[256], text[1024];
+    char line[2048], style[64], actor[64], effect[256], text[1024], *format_compiled;
     // Program description
     if(argc < 2){
         puts(
@@ -130,6 +130,8 @@ Format patterns:\n\
             return 1;
         }
     }
+    // Compile format string
+    format_compiled = str_replace(str_replace(format, 0, "\\t", "\t", 0), 0, "\\n", "\n", 1);
     // Iterate through input file lines
     while(fgets(line, sizeof(line), ifile))
         // Is dialog line and can read leading numbers?
@@ -193,10 +195,8 @@ Format patterns:\n\
                 end_ms = end_ms % 1000 / 10;
             }
             // Write formatted dialog to output
-            pline = str_replace(format, 0, "\\t", "\t", 0);
-            pline = str_replace(pline, 0, "\\n", "\n", 1);
             snprintf(line, sizeof(line), "%d", layer);
-            pline = str_replace(pline, 0, "!layer", line, 1);
+            pline = str_replace(format_compiled, 0, "!layer", line, 0);
             snprintf(line, sizeof(line), "%d:%02d:%02d.%02d", start_h, start_m, start_s, start_ms);
             pline = str_replace(pline, 0, "!start", line, 1);
             snprintf(line, sizeof(line), "%d:%02d:%02d.%02d", end_h, end_m, end_s, end_ms);
@@ -208,7 +208,8 @@ Format patterns:\n\
             fputs(pline, ofile);
             free((void*)pline);
         }
-    // Close open file handles
+    // Free memory and close open file handles
+    free(format_compiled);
     if(ifile != stdin)
         fclose(ifile);
     if(ofile != stdout)

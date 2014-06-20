@@ -19,8 +19,9 @@ Permission is granted to anyone to use this software for any purpose, including 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
 // Replace string in string and create new one
-char* str_replace(const char* original, const char* find, const char* replacement, char free_original){
-    int find_len = strlen(find), found_count = 0;
+char* str_replace(const char* original, const char* find, const char* replacement, const char free_original){
+    int found_count = 0;
+    const int find_len = strlen(find);
     char* result;
     const char* poriginal = original, *found;
     while(found = strstr(poriginal, find)){
@@ -44,7 +45,7 @@ char* str_replace(const char* original, const char* find, const char* replacemen
 }
 
 // Converts time units to ASS (Advanced Substation Alpha) timestamp
-void ass_timestamp(char* buf, int h, int m, int s, int ms10){
+void ass_timestamp(char* buf, const int h, const int m, const int s, const int ms10){
     buf[0] = h % 10 + '0';
     buf[1] = ':';
     buf[2] = m / 10 + '0';
@@ -59,14 +60,14 @@ void ass_timestamp(char* buf, int h, int m, int s, int ms10){
 }
 
 // Program entry
-int main(int argc, const char** argv){
+int main(const int argc, const char** argv){
     // Declarations & default definitions
-    const char* ifilename = 0, *ofilename = 0, *format = "!start-!end\\t!actor\\t!text\\n", *pline, *pline2;
+    const char* ifilename = 0, *ofilename = 0, *format = "!start-!end\\t!actor\\t!text\\n", *format_compiled, *pline, *pline2;
     FILE* ifile = stdin, *ofile = stdout;
     double old_fps = 0.0, new_fps = 0.0, fps_mul;
     int i, len, layer, start_h, start_m, start_s, end_h, end_m, end_s;
     long start_ms, end_ms;
-    char line[2048], style[64], actor[64], effect[256], text[1024], *format_compiled;
+    char line[4096], style[64], actor[64], effect[1024], text[2048];
     // Program description
     if(argc < 2){
         puts(
@@ -228,7 +229,7 @@ Format patterns:\n\
             free((void*)pline);
         }
     // Free memory and close open file handles
-    free(format_compiled);
+    free((void*)format_compiled);
     if(ifile != stdin)
         fclose(ifile);
     if(ofile != stdout)

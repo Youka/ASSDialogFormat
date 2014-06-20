@@ -1,5 +1,5 @@
 /*
-Project: ass_dialog_format
+Project: ASSDialogFormat
 File: main.c
 
 Copyright (c) 2014, Christoph "Youka" Spanknebel
@@ -41,6 +41,21 @@ char* str_replace(const char* original, const char* find, const char* replacemen
     if(free_original)
         free((void*)original);
     return result;
+}
+
+// Converts time units to ASS (Advanced Substation Alpha) timestamp
+void ass_timestamp(char* buf, int h, int m, int s, int ms10){
+    buf[0] = h % 10 + '0';
+    buf[1] = ':';
+    buf[2] = m / 10 + '0';
+    buf[3] = m % 10 + '0';
+    buf[4] = ':';
+    buf[5] = s / 10 + '0';
+    buf[6] = s % 10 + '0';
+    buf[7] = '.';
+    buf[8] = ms10 / 10 + '0';
+    buf[9] = ms10 % 10 + '0';
+    buf[10] = '\0';
 }
 
 // Program entry
@@ -199,11 +214,11 @@ Format patterns:\n\
                 end_ms = end_ms % 1000 / 10;
             }
             // Write formatted dialog to output
-            snprintf(line, sizeof(line), "%d", layer);
+            itoa(layer, line, 10);
             pline = str_replace(format_compiled, "!layer", line, 0);
-            snprintf(line, sizeof(line), "%d:%02d:%02d.%02d", start_h, start_m, start_s, start_ms);
+            ass_timestamp(line, start_h, start_m, start_s, start_ms);
             pline = str_replace(pline, "!start", line, 1);
-            snprintf(line, sizeof(line), "%d:%02d:%02d.%02d", end_h, end_m, end_s, end_ms);
+            ass_timestamp(line, end_h, end_m, end_s, end_ms);
             pline = str_replace(pline, "!end", line, 1);
             pline = str_replace(pline, "!style", style, 1);
             pline = str_replace(pline, "!actor", actor, 1);

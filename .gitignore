@@ -1,7 +1,6 @@
 # Binaries
 *.o
-ass_dialog_format
-*.exe
+ass_dialog_format*
 
 # Test files
 *.ass
